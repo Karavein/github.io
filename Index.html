@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 17G ETCH 송년회 경품 매니저</title>
+    
+    <!-- 1. 스타일 도구 (Tailwind CSS) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. 리액트 도구 (React, ReactDOM) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- 3. JSX 번역기 (Babel) -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- 아이콘 및 폰트 -->
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100">
+
+    <div id="root"></div>
+
+    <!-- 리액트 코드 시작 -->
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- 아이콘 컴포넌트 (Lucide 대체) ---
+        const Icon = ({ path, color = "currentColor", size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                {path}
+            </svg>
+        );
+
+        const Icons = {
+            Gift: (props) => <Icon {...props} path={<><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></>} />,
+            Plus: (props) => <Icon {...props} path={<><path d="M5 12h14"/><path d="M12 5v14"/></>} />,
+            Trash2: (props) => <Icon {...props} path={<><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></>} />,
+            CheckCircle: (props) => <Icon {...props} path={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>} />,
+            Circle: (props) => <Icon {...props} path={<circle cx="12" cy="12" r="10"/>} />,
+            Calculator: (props) => <Icon {...props} path={<><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></>} />,
+            Package: (props) => <Icon {...props} path={<><path d="m16.5 9.4-9-5.19"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></>} />,
+            ImageIcon: (props) => <Icon {...props} path={<><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></>} />,
+            Sparkles: (props) => <Icon {...props} path={<><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/></>} />,
+        };
+
+        // --- 스마트 이미지 매핑 데이터 ---
+        const SMART_IMAGES = {
+            '워치': 'https://images.samsung.com/is/image/samsung/p6pim/sec/watch6-classic-47mm-lte/gallery/sec-watch6-classic-47mm-lte-sm-r965nzkakoo-537443187?$684_547_PNG$',
+            '갤럭시': 'https://images.samsung.com/is/image/samsung/p6pim/sec/watch6-classic-47mm-lte/gallery/sec-watch6-classic-47mm-lte-sm-r965nzkakoo-537443187?$684_547_PNG$',
+            '버즈': 'https://images.samsung.com/is/image/samsung/p6pim/sec/sm-r510nzaakoo/gallery/sec-galaxy-buds2-pro-r510-sm-r510nzaakoo-533190861?$684_547_PNG$',
+            '에어팟': 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/MTJV3?wid=1144&hei=1144&fmt=jpeg&qlt=90&.v=1694014871985',
+            '아이패드': 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/ipad-pro-model-select-gallery-2-202212?wid=5120&hei=2880&fmt=p-jpg&qlt=95&.v=1667609546275',
+            '커피': 'https://www.nespresso.com/ecom/medias/sys_master/public/12596226523166/Vertuo-Pop-Mango-Yellow-3D-Media-800x800.png',
+            '네스프레소': 'https://www.nespresso.com/ecom/medias/sys_master/public/12596226523166/Vertuo-Pop-Mango-Yellow-3D-Media-800x800.png',
+            '라면': 'https://sitem.ssgcdn.com/72/79/17/item/1000021177972_i1_1200.jpg',
+            '신라면': 'https://sitem.ssgcdn.com/72/79/17/item/1000021177972_i1_1200.jpg',
+            '상품권': 'https://img.danawa.com/prod_img/500000/066/141/img/13141066_1.jpg?shrink=500:500&_v=20211124172730',
+            '신세계': 'https://img.danawa.com/prod_img/500000/066/141/img/13141066_1.jpg?shrink=500:500&_v=20211124172730',
+            '배터리': 'https://img.danawa.com/prod_img/500000/664/885/img/16885664_1.jpg?shrink=500:500&_v=20220426154527',
+            '보조배터리': 'https://img.danawa.com/prod_img/500000/664/885/img/16885664_1.jpg?shrink=500:500&_v=20220426154527',
+            '위스키': 'https://images.unsplash.com/photo-1527281400683-1aae777175f8?q=80&w=1000&auto=format&fit=crop',
+            '글렌피딕': 'https://images.unsplash.com/photo-1527281400683-1aae777175f8?q=80&w=1000&auto=format&fit=crop',
+            '로얄살루트': 'https://images.unsplash.com/photo-1569529465841-dfecd47550f2?q=80&w=1000&auto=format&fit=crop',
+            '화요': 'https://images.unsplash.com/photo-1586720076269-a1b7027a0558?q=80&w=1000&auto=format&fit=crop',
+            '소주': 'https://images.unsplash.com/photo-1586720076269-a1b7027a0558?q=80&w=1000&auto=format&fit=crop',
+            '치약': 'https://img.danawa.com/prod_img/500000/003/755/img/17755003_1.jpg?shrink=500:500',
+            '스팸': 'https://sitem.ssgcdn.com/60/00/64/item/1000021640060_i1_1200.jpg',
+        };
+
+        const App = () => {
+            // LocalStorage에서 초기 데이터 불러오기
+            const loadInitialData = () => {
+                try {
+                    const saved = localStorage.getItem('yearEndPrizes_v2');
+                    return saved ? JSON.parse(saved) : [];
+                } catch (e) { return []; }
+            };
+
+            const [prizes, setPrizes] = useState(loadInitialData);
+            const [newItem, setNewItem] = useState({ name: '', price: '', quantity: '', imageUrl: '' });
+            const [filter, setFilter] = useState('all');
+            const [isAutoFilling, setIsAutoFilling] = useState(false);
+
+            // 데이터 변경 시 자동 저장
+            useEffect(() => {
+                localStorage.setItem('yearEndPrizes_v2', JSON.stringify(prizes));
+            }, [prizes]);
+
+            // ✨ 스마트 이미지 자동완성 로직 (3가지 조건 충족 시)
+            useEffect(() => {
+                if (newItem.imageUrl) return; // 이미지가 있으면 패스
+                const isAllFieldsFilled = newItem.name.trim() !== '' && newItem.price !== '' && newItem.quantity !== '';
+                
+                if (!isAllFieldsFilled) return;
+
+                const timer = setTimeout(() => {
+                    const foundKeyword = Object.keys(SMART_IMAGES).find(keyword => 
+                        newItem.name.toLowerCase().includes(keyword.toLowerCase())
+                    );
+
+                    if (foundKeyword) {
+                        setIsAutoFilling(true);
+                        setNewItem(prev => ({
+                            ...prev,
+                            imageUrl: SMART_IMAGES[foundKeyword]
+                        }));
+                        setTimeout(() => setIsAutoFilling(false), 1000);
+                    }
+                }, 500);
+                return () => clearTimeout(timer);
+            }, [newItem.name, newItem.price, newItem.quantity, newItem.imageUrl]);
+
+            const handleAddPrize = (e) => {
+                e.preventDefault();
+                if (!newItem.name || !newItem.price || !newItem.quantity) return;
+
+                let finalImageUrl = newItem.imageUrl.trim();
+                if (!finalImageUrl) {
+                    finalImageUrl = `https://placehold.co/400x400/png?text=${encodeURIComponent(newItem.name)}`;
+                }
+
+                const newPrize = {
+                    id: Date.now(),
+                    name: newItem.name,
+                    price: parseInt(newItem.price),
+                    quantity: parseInt(newItem.quantity),
+                    imageUrl: finalImageUrl,
+                    isPrepared: false,
+                    createdAt: Date.now()
+                };
+
+                // 최신순 정렬
+                setPrizes([newPrize, ...prizes]);
+                setNewItem({ name: '', price: '', quantity: '', imageUrl: '' });
+            };
+
+            const handleDeletePrize = (id) => {
+                if (window.confirm('정말 삭제하시겠습니까?')) {
+                    setPrizes(prizes.filter(p => p.id !== id));
+                }
+            };
+
+            const togglePrepared = (id) => {
+                setPrizes(prizes.map(p => p.id === id ? { ...p, isPrepared: !p.isPrepared } : p));
+            };
+
+            const formatCurrency = (amount) => new Intl.NumberFormat('ko-KR').format(amount);
+            const totalBudget = prizes.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            const totalItems = prizes.reduce((acc, item) => acc + item.quantity, 0);
+            const preparedCount = prizes.filter(item => item.isPrepared).length;
+            const filteredPrizes = prizes.filter(item => {
+                if (filter === 'pending') return !item.isPrepared;
+                if (filter === 'completed') return item.isPrepared;
+                return true;
+            });
+
+            return (
+                <div className="min-h-screen pb-24 max-w-3xl mx-auto">
+                     <header className="bg-gradient-to-r from-red-800 to-red-600 text-white p-6 shadow-lg sticky top-0 z-20 md:rounded-b-xl">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <Icons.Gift size={28} className="text-yellow-300" />
+                                <div>
+                                    <h1 className="text-xl font-bold tracking-tight">17G ETCH 경품팀</h1>
+                                    <div className="text-xs text-red-100 flex items-center gap-1">
+                                        <Icons.Sparkles size={12} /> 자동 이미지 (로컬저장)
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="text-xs bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm">2025 송년회</div>
+                        </div>
+                    </header>
+
+                    <div className="p-4 space-y-5">
+                        {/* 대시보드 */}
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className="bg-white p-3 rounded-xl shadow-sm border-b-4 border-slate-700 text-center">
+                                <div className="text-gray-400 text-xs mb-1 flex justify-center items-center gap-1"><Icons.Calculator size={12} /> 예산</div>
+                                <div className="font-bold text-slate-800 truncate">{formatCurrency(totalBudget)}</div>
+                            </div>
+                            <div className="bg-white p-3 rounded-xl shadow-sm border-b-4 border-blue-500 text-center">
+                                <div className="text-gray-400 text-xs mb-1 flex justify-center items-center gap-1"><Icons.Package size={12} /> 수량</div>
+                                <div className="font-bold text-blue-600">{totalItems}개</div>
+                            </div>
+                            <div className="bg-white p-3 rounded-xl shadow-sm border-b-4 border-green-500 text-center">
+                                <div className="text-gray-400 text-xs mb-1 flex justify-center items-center gap-1"><Icons.CheckCircle size={12} /> 완료</div>
+                                <div className="font-bold text-green-600">{preparedCount}/{prizes.length}</div>
+                            </div>
+                        </div>
+
+                        {/* 입력 폼 */}
+                        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden transition-all duration-300">
+                            {isAutoFilling && (
+                                <div className="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-300 animate-pulse z-10"></div>
+                            )}
+                            <h2 className="text-sm font-bold text-gray-600 mb-3 flex items-center gap-2">
+                                <Icons.Plus size={16} className="text-red-500" /> 경품 등록
+                            </h2>
+                            <form onSubmit={handleAddPrize} className="flex flex-col gap-3">
+                                <div className="flex flex-col md:flex-row gap-3">
+                                    <div className="flex-grow">
+                                        <label className="block text-xs text-gray-400 mb-1 ml-1">상품명</label>
+                                        <input type="text" placeholder="예: 신라면 1박스" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-sm" value={newItem.name} onChange={(e) => setNewItem({ ...newItem, name: e.target.value })} required />
+                                    </div>
+                                    <div className="flex-grow md:w-5/12">
+                                        <label className="block text-xs text-gray-400 mb-1 ml-1 flex justify-between">
+                                            <span>이미지 URL</span>
+                                            <span className="text-red-400 font-normal">3가지 입력 시 자동완성</span>
+                                        </label>
+                                        <div className="relative">
+                                            <input type="text" placeholder="자동 입력됨" className={`w-full p-3 pl-9 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-sm truncate ${isAutoFilling ? 'bg-yellow-50 text-yellow-800 font-medium' : ''}`} value={newItem.imageUrl} onChange={(e) => setNewItem({ ...newItem, imageUrl: e.target.value })} />
+                                            <Icons.ImageIcon size={16} className={`absolute left-3 top-3.5 ${newItem.imageUrl ? 'text-red-500' : 'text-gray-400'}`} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex gap-3">
+                                    <div className="flex-grow">
+                                        <label className="block text-xs text-gray-400 mb-1 ml-1">단가</label>
+                                        <input type="number" placeholder="금액 (원)" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-sm text-right" value={newItem.price} onChange={(e) => setNewItem({ ...newItem, price: e.target.value })} required />
+                                    </div>
+                                    <div className="w-24">
+                                        <label className="block text-xs text-gray-400 mb-1 ml-1">수량</label>
+                                        <input type="number" placeholder="개수" className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-sm text-center" value={newItem.quantity} onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })} required min="1" />
+                                    </div>
+                                    <div className="self-end">
+                                        <button type="submit" className="bg-slate-800 hover:bg-slate-900 text-white p-3 rounded-lg font-medium shadow-sm h-[46px] w-[60px] flex items-center justify-center transition-transform active:scale-95">
+                                            <Icons.Plus size={20} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        {/* 리스트 */}
+                        <div className="space-y-3">
+                            <div className="flex justify-end mb-2">
+                                <div className="flex bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+                                    {['all', 'pending', 'completed'].map((f) => (
+                                        <button key={f} onClick={() => setFilter(f)} className={`px-3 py-1 text-xs rounded-md transition-colors ${filter === f ? 'bg-slate-800 text-white' : 'text-gray-500 hover:bg-gray-50'}`}>{f === 'all' ? '전체' : f === 'pending' ? '준비중' : '완료'}</button>
+                                    ))}
+                                </div>
+                            </div>
+                            
+                            {filteredPrizes.length === 0 ? (
+                                <div className="bg-white rounded-xl p-12 text-center text-gray-400 border border-dashed border-gray-300">
+                                    <p className="text-sm">경품명, 금액, 수량을 모두 입력해보세요!</p>
+                                </div>
+                            ) : (
+                                filteredPrizes.map((item) => (
+                                    <div key={item.id} className={`bg-white rounded-xl p-3 flex gap-3 shadow-sm border border-gray-100 transition-all ${item.isPrepared ? 'opacity-60 bg-gray-50 grayscale' : 'hover:shadow-md'}`}>
+                                        <div onClick={() => togglePrepared(item.id)} className="cursor-pointer relative group flex-shrink-0">
+                                            <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden border border-gray-200">
+                                                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { e.target.src = `https://placehold.co/100x100?text=${encodeURIComponent(item.name.slice(0,2))}`; }} />
+                                            </div>
+                                            <div className={`absolute -top-2 -left-2 bg-white rounded-full p-0.5 shadow-md transition-transform ${item.isPrepared ? 'scale-100 text-green-500' : 'scale-0 group-hover:scale-100 text-gray-300'}`}>
+                                                <Icons.CheckCircle size={22} className="fill-current bg-white rounded-full" />
+                                            </div>
+                                        </div>
+                                        <div className="flex-grow flex flex-col justify-center min-w-0">
+                                            <div className={`font-bold text-base mb-1 truncate ${item.isPrepared ? 'line-through text-gray-400' : 'text-slate-800'}`}>{item.name}</div>
+                                            <div className="text-xs text-gray-500 flex gap-2">
+                                                <span className="bg-slate-100 px-1.5 py-0.5 rounded">@{formatCurrency(item.price)}</span>
+                                                <span className="bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-bold">x{item.quantity}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col items-end justify-between py-1 flex-shrink-0">
+                                            <div className="font-bold text-slate-700 text-lg">{formatCurrency(item.price * item.quantity)}</div>
+                                            <button onClick={() => handleDeletePrize(item.id)} className="text-gray-300 hover:text-red-500 p-1 rounded hover:bg-red-50 transition-colors"><Icons.Trash2 size={16} /></button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
