@@ -3,76 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나만의 로또 50 - 당첨 확인기</title>
+    <title>나만의 로또 50 - 오토매틱 마스터</title>
     <style>
-        body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { text-align: center; font-size: 1.5rem; margin-bottom: 20px; color: #2c3e50; }
+        body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif; background-color: #eef2f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 680px; margin: 0 auto; background: white; padding: 30px; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
         
-        /* 입력 섹션 */
-        .input-section { background: #e9ecef; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
-        .input-title { font-weight: bold; margin-bottom: 10px; display: block; }
-        .win-inputs { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
-        .win-inputs input { width: 40px; height: 40px; text-align: center; font-size: 18px; border: 1px solid #ddd; border-radius: 50%; outline: none; }
-        .win-inputs input:focus { border-color: #007bff; border-width: 2px; }
-        .bonus-span { align-self: center; font-weight: bold; margin: 0 5px; color: #666; }
-        
-        button { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:hover { background: #0056b3; }
+        /* 헤더 영역 */
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { margin: 0 0 10px 0; font-size: 1.8rem; color: #1e293b; letter-spacing: -0.5px; }
+        .sub-desc { font-size: 0.9rem; color: #64748b; }
 
-        /* 결과 리스트 */
-        .list-container { display: flex; flex-direction: column; gap: 10px; }
-        .lotto-set { display: flex; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid #eee; border-radius: 8px; background: #fff; }
-        .set-idx { font-size: 0.8rem; color: #888; width: 30px; }
-        .balls { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
-        .ball { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: bold; font-size: 14px; color: white; background-color: #ddd; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
-        
-        /* 등수 뱃지 */
-        .rank-badge { padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; font-weight: bold; color: white; min-width: 50px; text-align: center; display: none; }
-        .rank-1 { background: #ff0000; display: block; } /* 1등 */
-        .rank-2 { background: #ff8c00; display: block; } /* 2등 */
-        .rank-3 { background: #28a745; display: block; } /* 3등 */
-        .rank-4 { background: #17a2b8; display: block; } /* 4등 */
-        .rank-5 { background: #6c757d; display: block; } /* 5등 */
-        .rank-fail { display: none; } 
+        /* 자동 조회 버튼 */
+        .control-panel { text-align: center; margin-bottom: 25px; padding-bottom: 25px; border-bottom: 2px dashed #e2e8f0; }
+        .btn-fetch {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white; padding: 14px 32px; border: none; border-radius: 50px;
+            font-size: 1.05rem; font-weight: 700; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-fetch:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4); }
+        .btn-fetch:active { transform: translateY(0); }
+        .loading-icon { animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 공 색상 (번호대별) */
-        .ball.y1 { background-color: #fbc400; color: #333; text-shadow: none; } /* 1~10 */
-        .ball.b10 { background-color: #69c8f2; } /* 11~20 */
-        .ball.r20 { background-color: #ff7272; } /* 21~30 */
-        .ball.g30 { background-color: #aaaaaa; } /* 31~40 */
-        .ball.gr40 { background-color: #b0d840; } /* 41~45 */
+        /* 당첨 결과 대시보드 */
+        .dashboard { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 20px; padding: 25px; margin-bottom: 30px; position: relative; }
+        .badge-round {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+            background: #0f172a; color: #fff; padding: 6px 16px; border-radius: 20px;
+            font-size: 0.85rem; font-weight: 700; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .win-balls { display: flex; justify-content: center; gap: 8px; margin: 20px 0; flex-wrap: wrap; }
+        .win-ball {
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.2rem; color: white;
+            box-shadow: inset -3px -3px 6px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .plus-sign { align-self: center; font-size: 1.5rem; color: #94a3b8; margin: 0 5px; font-weight: 300; }
         
-        /* 당첨 번호 강조 */
-        .ball.match { border: 2px solid #000; transform: scale(1.1); box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
+        .info-item { background: white; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
+        .info-label { display: block; font-size: 0.8rem; color: #64748b; margin-bottom: 4px; }
+        .info-value { font-weight: 700; color: #334155; font-size: 0.95rem; word-break: keep-all; }
+        .highlight { color: #e11d48; }
+
+        /* 내 번호 리스트 */
+        .list-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 10px; }
+        .list-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
+        .my-total { font-size: 0.95rem; color: #6366f1; font-weight: 700; }
+
+        .lotto-list { display: flex; flex-direction: column; gap: 10px; }
+        .lotto-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; background: white; border-radius: 14px;
+            border: 1px solid #f1f5f9; transition: all 0.2s;
+        }
+        .lotto-row:hover { transform: translateX(5px); border-color: #cbd5e1; }
+        
+        .row-idx { font-size: 0.8rem; color: #94a3b8; width: 25px; font-weight: 500; }
+        
+        .my-balls { display: flex; gap: 5px; }
+        .my-ball {
+            width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 700; color: #fff;
+            background-color: #e2e8f0; color: #94a3b8; /* 기본 회색 */
+        }
+        
+        /* 공 색상 클래스 */
+        .b-y { background-color: #fcc419; color: #333; text-shadow: none; }
+        .b-b { background-color: #4dabf7; color: #fff; }
+        .b-r { background-color: #ff6b6b; color: #fff; }
+        .b-g { background-color: #adb5bd; color: #fff; }
+        .b-gr { background-color: #69db7c; color: #fff; }
+
+        /* 당첨된 공 스타일 */
+        .my-ball.hit { 
+            box-shadow: 0 0 0 2px #1e293b; 
+            transform: scale(1.1); z-index: 2; 
+        }
+        
+        /* 당첨 뱃지 */
+        .rank-tag {
+            padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; color: white; min-width: 50px; text-align: center;
+        }
+        .tag-1 { background: linear-gradient(45deg, #ef4444, #f87171); box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4); }
+        .tag-2 { background: linear-gradient(45deg, #f97316, #fb923c); }
+        .tag-3 { background: linear-gradient(45deg, #22c55e, #4ade80); }
+        .tag-4 { background: linear-gradient(45deg, #0ea5e9, #38bdf8); }
+        .tag-5 { background: #94a3b8; }
+        .tag-fail { display: none; }
+
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🍀 나의 로또 50 당첨 확인기</h1>
+    <header>
+        <h1>🍀 나만의 로또 50</h1>
+        <div class="sub-desc">버튼 한 번으로 최신 당첨 결과를 자동 분석합니다</div>
+    </header>
     
-    <div class="input-section">
-        <span class="input-title">이번 주 당첨 번호 입력</span>
-        <div class="win-inputs">
-            <input type="number" id="w1" placeholder="1">
-            <input type="number" id="w2" placeholder="2">
-            <input type="number" id="w3" placeholder="3">
-            <input type="number" id="w4" placeholder="4">
-            <input type="number" id="w5" placeholder="5">
-            <input type="number" id="w6" placeholder="6">
-            <span class="bonus-span">+</span>
-            <input type="number" id="bonus" placeholder="B">
-        </div>
-        <button onclick="checkLotto()">당첨 확인하기</button>
+    <div class="control-panel">
+        <button class="btn-fetch" onclick="fetchLatestLotto()">
+            <span class="loading-icon" id="spinIcon">⏳</span>
+            <span id="btnText">최신 결과 자동 조회</span>
+        </button>
     </div>
 
-    <div class="list-container" id="lottoList">
+    <div class="dashboard" id="dashboard" style="display:none;">
+        <div class="badge-round" id="roundBadge">0000회차</div>
+        
+        <div class="win-balls" id="winBallsContainer">
+            </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">1등 당첨금</span>
+                <span class="info-value highlight" id="prizeVal">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">1등 당첨자 수</span>
+                <span class="info-value" id="winnerCount">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">추첨일</span>
+                <span class="info-value" id="drawDate">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">장소/유형</span>
+                <span class="info-value" style="font-size:0.8rem; color:#94a3b8;">홈페이지 참조 (API미제공)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="list-header">
+        <div class="list-title">나의 50세트 결과</div>
+        <div class="my-total" id="myTotalMoney"></div>
+    </div>
+
+    <div class="lotto-list" id="lottoList">
         </div>
 </div>
 
 <script>
-    // 2025년 12월 21일 생성된 50세트 데이터
+    // 50세트 데이터 (앞서 생성한 3:3 밸런스, 합계 130~150 데이터)
     const myNumbers = [
         [2, 13, 21, 28, 34, 37], [5, 14, 22, 29, 31, 38], [3, 16, 24, 27, 30, 39], [9, 12, 20, 25, 33, 36], [4, 15, 23, 26, 31, 32],
         [7, 18, 22, 29, 34, 35], [1, 19, 24, 28, 33, 36], [6, 17, 21, 25, 30, 32], [8, 11, 23, 26, 35, 38], [10, 13, 24, 29, 31, 36],
@@ -86,93 +165,88 @@
         [3, 13, 20, 31, 35, 42], [6, 18, 21, 28, 32, 45], [1, 19, 24, 29, 30, 44], [8, 15, 23, 26, 37, 38], [10, 12, 25, 27, 36, 39]
     ];
 
+    // 공 색상 클래스 반환
     function getColorClass(num) {
-        if (num <= 10) return 'y1';
-        if (num <= 20) return 'b10';
-        if (num <= 30) return 'r20';
-        if (num <= 40) return 'g30';
-        return 'gr40';
+        if (num <= 10) return 'b-y';
+        if (num <= 20) return 'b-b';
+        if (num <= 30) return 'b-r';
+        if (num <= 40) return 'b-g';
+        return 'b-gr';
     }
 
-    function renderList(wins = [], bonus = 0) {
-        const container = document.getElementById('lottoList');
-        container.innerHTML = '';
-
-        myNumbers.forEach((set, index) => {
-            let matchCount = 0;
-            let isBonusMatch = false;
-
-            const row = document.createElement('div');
-            row.className = 'lotto-set';
-            
-            const idxSpan = document.createElement('span');
-            idxSpan.className = 'set-idx';
-            idxSpan.innerText = (index + 1) + '.';
-            row.appendChild(idxSpan);
-
-            const ballsDiv = document.createElement('div');
-            ballsDiv.className = 'balls';
-
-            set.forEach(num => {
-                const ball = document.createElement('div');
-                ball.className = 'ball ' + getColorClass(num);
-                ball.innerText = num;
-
-                if (wins.includes(num)) {
-                    ball.classList.add('match');
-                    matchCount++;
-                } else if (num === bonus) {
-                    ball.classList.add('match'); // 보너스도 표시
-                    isBonusMatch = true;
-                }
-                ballsDiv.appendChild(ball);
-            });
-            row.appendChild(ballsDiv);
-
-            // 등수 계산
-            let rankClass = 'rank-fail';
-            let rankText = '';
-            
-            if (matchCount === 6) { rankClass = 'rank-1'; rankText = '1등!'; }
-            else if (matchCount === 5 && isBonusMatch) { rankClass = 'rank-2'; rankText = '2등'; }
-            else if (matchCount === 5) { rankClass = 'rank-3'; rankText = '3등'; }
-            else if (matchCount === 4) { rankClass = 'rank-4'; rankText = '4등'; }
-            else if (matchCount === 3) { rankClass = 'rank-5'; rankText = '5등'; }
-
-            const badge = document.createElement('span');
-            badge.className = 'rank-badge ' + rankClass;
-            badge.innerText = rankText;
-            row.appendChild(badge);
-
-            container.appendChild(row);
-        });
-    }
-
-    function checkLotto() {
-        const inputs = document.querySelectorAll('.win-inputs input');
-        const wins = [];
-        let bonus = 0;
-        let filled = true;
-
-        inputs.forEach((input, idx) => {
-            const val = parseInt(input.value);
-            if (!val) filled = false;
-            if (idx < 6) wins.push(val);
-            else bonus = val;
-        });
-
-        if (!filled) {
-            alert('당첨 번호 6개와 보너스 번호를 모두 입력해주세요!');
-            return;
+    // 회차 계산 (오늘 날짜 기준 가장 최근 토요일 추첨회차)
+    function calculateRound() {
+        const start = new Date('2002-12-07T21:00:00');
+        const now = new Date();
+        const diff = now - start;
+        let round = Math.floor(diff / (1000 * 60 * 60 * 24 * 7)) + 1;
+        
+        // 토요일 저녁 8시 45분 전이면 아직 추첨 안함 -> 전 회차 보여주기
+        if (now.getDay() === 6 && now.getHours() < 21) {
+            if(now.getHours() < 20 || (now.getHours() === 20 && now.getMinutes() < 45)) {
+                round--;
+            }
         }
-
-        renderList(wins, bonus);
-        alert('확인이 완료되었습니다! 등수 뱃지를 확인하세요.');
+        return round;
     }
 
-    // 초기 렌더링
-    renderList();
-</script>
+    // API 호출 (CORS 프록시 사용)
+    async function fetchLatestLotto() {
+        const btnText = document.getElementById('btnText');
+        const spinIcon = document.getElementById('spinIcon');
+        
+        btnText.innerText = "데이터 가져오는 중...";
+        spinIcon.style.display = "inline-block";
 
-</body>
-</html>
+        const round = calculateRound();
+        // AllOrigins Proxy를 통해 동행복권 API 우회 호출
+        const url = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`;
+
+        try {
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.returnValue === 'success') {
+                renderDashboard(data);
+                renderMyList([data.drwtNo1, data.drwtNo2, data.drwtNo3, data.drwtNo4, data.drwtNo5, data.drwtNo6], data.bnusNo);
+                btnText.innerText = "조회 완료!";
+            } else {
+                alert("아직 당첨 결과가 나오지 않았거나 통신 오류입니다.");
+                btnText.innerText = "다시 시도";
+            }
+        } catch (e) {
+            console.error(e);
+            alert("데이터를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.");
+            btnText.innerText = "오류 발생";
+        } finally {
+            spinIcon.style.display = "none";
+        }
+    }
+
+    // 상단 대시보드 그리기
+    function renderDashboard(data) {
+        document.getElementById('dashboard').style.display = 'block';
+        document.getElementById('roundBadge').innerText = `${data.drwNo}회 당첨결과`;
+        document.getElementById('prizeVal').innerText = parseInt(data.firstWinamnt).toLocaleString() + '원';
+        document.getElementById('winnerCount').innerText = data.firstPrzwnerCo + '명';
+        document.getElementById('drawDate').innerText = data.drwNoDate;
+
+        const ballsContainer = document.getElementById('winBallsContainer');
+        ballsContainer.innerHTML = '';
+        
+        const nums = [data.drwtNo1, data.drwtNo2, data.drwtNo3, data.drwtNo4, data.drwtNo5, data.drwtNo6];
+        
+        nums.forEach(n => {
+            const ball = document.createElement('div');
+            ball.className = `win-ball ${getColorClass(n)}`;
+            ball.innerText = n;
+            ballsContainer.appendChild(ball);
+        });
+
+        // 보너스
+        const plus = document.createElement('div');
+        plus.className = 'plus-sign';
+        plus.innerText = '+';
+        ballsContainer.appendChild(plus);
+
+        const bonusBall = document.createElement('div');
