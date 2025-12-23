@@ -8,12 +8,10 @@
         body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif; background-color: #eef2f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 680px; margin: 0 auto; background: white; padding: 30px; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
         
-        /* 헤더 영역 */
         header { text-align: center; margin-bottom: 30px; }
         h1 { margin: 0 0 10px 0; font-size: 1.8rem; color: #1e293b; letter-spacing: -0.5px; }
         .sub-desc { font-size: 0.9rem; color: #64748b; }
 
-        /* 자동 조회 버튼 */
         .control-panel { text-align: center; margin-bottom: 25px; padding-bottom: 25px; border-bottom: 2px dashed #e2e8f0; }
         .btn-fetch {
             background: linear-gradient(135deg, #6366f1, #4f46e5);
@@ -27,7 +25,6 @@
         .loading-icon { animation: spin 1s linear infinite; display: none; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 당첨 결과 대시보드 */
         .dashboard { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 20px; padding: 25px; margin-bottom: 30px; position: relative; }
         .badge-round {
             position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
@@ -51,7 +48,6 @@
         .info-value { font-weight: 700; color: #334155; font-size: 0.95rem; word-break: keep-all; }
         .highlight { color: #e11d48; }
 
-        /* 내 번호 리스트 */
         .list-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; padding: 0 10px; }
         .list-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
         .my-total { font-size: 0.95rem; color: #6366f1; font-weight: 700; }
@@ -71,32 +67,23 @@
             width: 30px; height: 30px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             font-size: 0.85rem; font-weight: 700; color: #fff;
-            background-color: #e2e8f0; color: #94a3b8; /* 기본 회색 */
+            background-color: #e2e8f0; color: #94a3b8;
         }
         
-        /* 공 색상 클래스 */
         .b-y { background-color: #fcc419; color: #333; text-shadow: none; }
         .b-b { background-color: #4dabf7; color: #fff; }
         .b-r { background-color: #ff6b6b; color: #fff; }
         .b-g { background-color: #adb5bd; color: #fff; }
         .b-gr { background-color: #69db7c; color: #fff; }
 
-        /* 당첨된 공 스타일 */
-        .my-ball.hit { 
-            box-shadow: 0 0 0 2px #1e293b; 
-            transform: scale(1.1); z-index: 2; 
-        }
+        .my-ball.hit { box-shadow: 0 0 0 2px #1e293b; transform: scale(1.1); z-index: 2; }
         
-        /* 당첨 뱃지 */
-        .rank-tag {
-            padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; color: white; min-width: 50px; text-align: center;
-        }
-        .tag-1 { background: linear-gradient(45deg, #ef4444, #f87171); box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4); }
+        .rank-tag { padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; color: white; min-width: 50px; text-align: center; }
+        .tag-1 { background: linear-gradient(45deg, #ef4444, #f87171); }
         .tag-2 { background: linear-gradient(45deg, #f97316, #fb923c); }
         .tag-3 { background: linear-gradient(45deg, #22c55e, #4ade80); }
         .tag-4 { background: linear-gradient(45deg, #0ea5e9, #38bdf8); }
         .tag-5 { background: #94a3b8; }
-        .tag-fail { display: none; }
 
     </style>
 </head>
@@ -118,8 +105,7 @@
     <div class="dashboard" id="dashboard" style="display:none;">
         <div class="badge-round" id="roundBadge">0000회차</div>
         
-        <div class="win-balls" id="winBallsContainer">
-            </div>
+        <div class="win-balls" id="winBallsContainer"></div>
 
         <div class="info-grid">
             <div class="info-item">
@@ -146,107 +132,10 @@
         <div class="my-total" id="myTotalMoney"></div>
     </div>
 
-    <div class="lotto-list" id="lottoList">
-        </div>
+    <div class="lotto-list" id="lottoList"></div>
 </div>
 
 <script>
-    // 50세트 데이터 (앞서 생성한 3:3 밸런스, 합계 130~150 데이터)
+    // 50세트 데이터
     const myNumbers = [
-        [2, 13, 21, 28, 34, 37], [5, 14, 22, 29, 31, 38], [3, 16, 24, 27, 30, 39], [9, 12, 20, 25, 33, 36], [4, 15, 23, 26, 31, 32],
-        [7, 18, 22, 29, 34, 35], [1, 19, 24, 28, 33, 36], [6, 17, 21, 25, 30, 32], [8, 11, 23, 26, 35, 38], [10, 13, 24, 29, 31, 36],
-        [2, 15, 20, 27, 33, 34], [5, 16, 22, 25, 30, 39], [4, 18, 23, 29, 31, 36], [7, 12, 21, 28, 35, 38], [9, 14, 26, 27, 32, 33],
-        [3, 19, 24, 25, 30, 34], [6, 11, 22, 29, 37, 38], [1, 20, 23, 28, 35, 36], [8, 17, 24, 25, 31, 32], [10, 15, 21, 26, 33, 34],
-        [2, 13, 22, 29, 35, 36], [5, 18, 24, 27, 31, 38], [4, 11, 23, 26, 30, 39], [7, 16, 25, 28, 33, 34], [9, 14, 21, 29, 32, 35],
-        [3, 20, 22, 27, 31, 36], [6, 15, 24, 25, 30, 38], [1, 12, 26, 29, 33, 34], [8, 19, 21, 28, 35, 36], [10, 17, 23, 24, 32, 39],
-        [2, 11, 25, 28, 34, 37], [5, 14, 21, 26, 33, 36], [4, 15, 22, 29, 31, 38], [7, 18, 24, 27, 30, 35], [9, 12, 23, 28, 32, 39],
-        [3, 16, 21, 26, 34, 37], [6, 13, 25, 29, 30, 36], [1, 14, 22, 27, 31, 38], [8, 20, 24, 25, 33, 34], [10, 11, 18, 26, 35, 39],
-        [2, 15, 23, 30, 34, 41], [5, 12, 21, 28, 36, 43], [4, 17, 24, 29, 31, 40], [7, 14, 22, 25, 38, 39], [9, 16, 26, 27, 33, 34],
-        [3, 13, 20, 31, 35, 42], [6, 18, 21, 28, 32, 45], [1, 19, 24, 29, 30, 44], [8, 15, 23, 26, 37, 38], [10, 12, 25, 27, 36, 39]
-    ];
-
-    // 공 색상 클래스 반환
-    function getColorClass(num) {
-        if (num <= 10) return 'b-y';
-        if (num <= 20) return 'b-b';
-        if (num <= 30) return 'b-r';
-        if (num <= 40) return 'b-g';
-        return 'b-gr';
-    }
-
-    // 회차 계산 (오늘 날짜 기준 가장 최근 토요일 추첨회차)
-    function calculateRound() {
-        const start = new Date('2002-12-07T21:00:00');
-        const now = new Date();
-        const diff = now - start;
-        let round = Math.floor(diff / (1000 * 60 * 60 * 24 * 7)) + 1;
-        
-        // 토요일 저녁 8시 45분 전이면 아직 추첨 안함 -> 전 회차 보여주기
-        if (now.getDay() === 6 && now.getHours() < 21) {
-            if(now.getHours() < 20 || (now.getHours() === 20 && now.getMinutes() < 45)) {
-                round--;
-            }
-        }
-        return round;
-    }
-
-    // API 호출 (CORS 프록시 사용)
-    async function fetchLatestLotto() {
-        const btnText = document.getElementById('btnText');
-        const spinIcon = document.getElementById('spinIcon');
-        
-        btnText.innerText = "데이터 가져오는 중...";
-        spinIcon.style.display = "inline-block";
-
-        const round = calculateRound();
-        // AllOrigins Proxy를 통해 동행복권 API 우회 호출
-        const url = `https://api.allorigins.win/raw?url=${encodeURIComponent('https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=' + round)}`;
-
-        try {
-            const res = await fetch(url);
-            const data = await res.json();
-
-            if (data.returnValue === 'success') {
-                renderDashboard(data);
-                renderMyList([data.drwtNo1, data.drwtNo2, data.drwtNo3, data.drwtNo4, data.drwtNo5, data.drwtNo6], data.bnusNo);
-                btnText.innerText = "조회 완료!";
-            } else {
-                alert("아직 당첨 결과가 나오지 않았거나 통신 오류입니다.");
-                btnText.innerText = "다시 시도";
-            }
-        } catch (e) {
-            console.error(e);
-            alert("데이터를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.");
-            btnText.innerText = "오류 발생";
-        } finally {
-            spinIcon.style.display = "none";
-        }
-    }
-
-    // 상단 대시보드 그리기
-    function renderDashboard(data) {
-        document.getElementById('dashboard').style.display = 'block';
-        document.getElementById('roundBadge').innerText = `${data.drwNo}회 당첨결과`;
-        document.getElementById('prizeVal').innerText = parseInt(data.firstWinamnt).toLocaleString() + '원';
-        document.getElementById('winnerCount').innerText = data.firstPrzwnerCo + '명';
-        document.getElementById('drawDate').innerText = data.drwNoDate;
-
-        const ballsContainer = document.getElementById('winBallsContainer');
-        ballsContainer.innerHTML = '';
-        
-        const nums = [data.drwtNo1, data.drwtNo2, data.drwtNo3, data.drwtNo4, data.drwtNo5, data.drwtNo6];
-        
-        nums.forEach(n => {
-            const ball = document.createElement('div');
-            ball.className = `win-ball ${getColorClass(n)}`;
-            ball.innerText = n;
-            ballsContainer.appendChild(ball);
-        });
-
-        // 보너스
-        const plus = document.createElement('div');
-        plus.className = 'plus-sign';
-        plus.innerText = '+';
-        ballsContainer.appendChild(plus);
-
-        const bonusBall = document.createElement('div');
+        [2, 13, 21, 28, 34, 37], [5, 14, 22, 29, 31, 38], [3, 16, 24, 27, 30, 39], [9, 12, 20, 25, 33, 36], [4, 15, 23,
